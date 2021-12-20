@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import "./App.css";
-import { getTodoListContract } from "./config/contract";
+import TodoList from "./contract/TodoList.json";
 
 function App() {
   const [account, setAccount] = useState();
@@ -20,13 +20,12 @@ function App() {
         ethers.utils.formatEther((await signer.getBalance()).toString())
       );
 
-      const TODOLIST_ABI = await getTodoListContract();
       const todoList = new ethers.Contract(
-        "0x29344bc6ca91345bdc2144cef28e2bffc321639b",
-        TODOLIST_ABI
+        process.env.REACT_APP_SMART_CONTRACT_ADDRESS,
+        TodoList.abi
       );
 
-      console.log(todoList);
+      setContract(todoList);
     }
 
     load();
@@ -37,7 +36,7 @@ function App() {
       <h1>Ethereum Todo List</h1>
       <p>Your account is: {account}</p>
       <p>Your balance is: {balance} ETH</p>
-      <p>Current contract is: </p>
+      <p>Current contract is: {contract?.address}</p>
       <hr />
     </div>
   );
