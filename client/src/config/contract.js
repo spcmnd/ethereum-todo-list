@@ -1,4 +1,6 @@
-import todoListContract from '../../../build/contracts/TodoList.json';
+export async function getTodoListContract() {
+  const todoListContract = await fetch("/TodoList.json");
+  const TODOLIST_ABI = todoListContract.abi;
 
-export const TODOLIST_ADDRESS = todoListContract.networks[1639908644676].address;
-export const TODOLIST_ABI = todoListContract.abi;
+  return TODOLIST_ABI;
+}
