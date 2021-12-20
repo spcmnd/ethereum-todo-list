@@ -8,6 +8,7 @@ function App() {
   const [balance, setBalance] = useState();
 
   const [contract, setContract] = useState();
+  const [taskCount, setTaskCount] = useState();
 
   useEffect(() => {
     async function load() {
@@ -22,10 +23,12 @@ function App() {
 
       const todoList = new ethers.Contract(
         process.env.REACT_APP_SMART_CONTRACT_ADDRESS,
-        TodoList.abi
+        TodoList.abi,
+        signer
       );
 
       setContract(todoList);
+      setTaskCount((await todoList.taskCount()).toNumber());
     }
 
     load();
@@ -38,6 +41,7 @@ function App() {
       <p>Your balance is: {balance} ETH</p>
       <p>Current contract is: {contract?.address}</p>
       <hr />
+      <p>Task count: {taskCount}</p>
     </div>
   );
 }
