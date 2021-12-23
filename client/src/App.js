@@ -1,16 +1,14 @@
 import { ethers } from "ethers";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import "./App.css";
 import TodoList from "./contract/TodoList.json";
 
 function App() {
-  const [contract, setContract] = useState();
-  const [account, setAccount] = useState();
-  const [balance, setBalance] = useState();
-  const [taskCount, setTaskCount] = useState();
+  const [contract, setContract] = useState(null);
+  const [account, setAccount] = useState(null);
+  const [balance, setBalance] = useState(0);
+  const [taskCount, setTaskCount] = useState(0);
   const [tasks, setTasks] = useState([]);
-
-  useEffect(() => loadBlockchainData());
 
   async function loadBlockchainData() {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -28,28 +26,58 @@ function App() {
       signer
     );
     setContract(todoList);
-    const count = (await todoList.taskCount()).toNumber();
-    setTaskCount(count);
-    loadTasks();
+
+    return;
   }
 
-  async function loadTasks() {
+  useEffect(() => {
+    loadBlockchainData();
+  }, []);
+
+  const loadTasks = useCallback(async () => {
+    if (!contract) {
+      return;
+    }
+
+    const count = (await contract.getTasksCount()).toNumber();
+    setTaskCount(count);
+
+    if (!count) {
+      setTasks([]);
+
+      return;
+    }
+
     const loadedTasks = [];
 
-    for (let index = 1; index <= taskCount; index++) {
-      const task = await contract.tasks(index);
+    for (let index = 0; index < count; index++) {
+      const task = await contract.getTask(index);
       loadedTasks.push(task);
     }
 
     setTasks(loadedTasks);
-  }
+  }, [contract]);
+
+  useEffect(() => {
+    loadTasks();
+  }, [loadTasks]);
 
   async function handleFormSubmit(event) {
     event.preventDefault();
-    const transactionResponse = await contract.createTask(
-      event?.target?.content?.value
-    );
-    await transactionResponse.wait();
+    const response = await contract.createTask(event?.target?.content?.value);
+    await response.wait();
+    loadTasks();
+  }
+
+  async function handleTaskCheck(index) {
+    const response = await contract.completeTask(index);
+    await response.wait();
+    loadTasks();
+  }
+
+  async function handleTaskDelete(index) {
+    const response = await contract.deleteTask(index);
+    await response.wait();
     loadTasks();
   }
 
@@ -67,10 +95,16 @@ function App() {
         <button type="submit">Submit</button>
       </form>
       <div className="tasks">
-        {tasks.map((t) => (
-          <div key={t.id.toNumber()} className="task">
-            {t.id.toNumber()} - {t.content} -{" "}
-            <input type="checkbox" checked={t.id.completed} />
+        {tasks.map((t, i) => (
+          <div key={i} className="task">
+            {i} - {t.content} -{" "}
+            <input
+              type="checkbox"
+              checked={t.completed}
+              onClick={() => !t.completed && handleTaskCheck(i)}
+              readOnly
+            />{" "}
+            - <span onClick={() => handleTaskDelete(i)}>X</span>
           </div>
         ))}
       </div>
