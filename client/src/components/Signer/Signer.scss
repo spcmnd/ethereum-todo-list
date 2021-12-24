@@ -1,0 +1,14 @@
+@use "typography";
+
+.Signer {
+    align-items: center;
+    display: flex;
+
+    > * + * {
+        margin-left: 0.5em;
+    }
+
+    .balance {
+        @include typography.small-text();
+    }
+}

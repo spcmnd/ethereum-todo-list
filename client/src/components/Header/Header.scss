@@ -1,0 +1,14 @@
+@use "typography";
+
+.Header {
+    align-items: center;
+    background-color: white;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 0.25em 0.75em;
+    display: flex;
+    justify-content: space-between;
+    padding: 1em;
+
+    h1 {
+        @include typography.h1();
+    }
+}

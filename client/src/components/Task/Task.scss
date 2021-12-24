@@ -1,0 +1,25 @@
+.Task {
+    align-items: center;
+    background-color: white;
+    border-radius: 0.5em;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 0.25em 0.75em;
+    display: flex;
+    padding: 0.5em 1em;
+
+    > * + * {
+        margin-left: 0.5em;
+    }
+
+    p {
+        font-size: 1.3rem;
+
+        &.completed {
+            opacity: 0.3;
+            text-decoration: line-through;
+        }
+    }
+
+    input:hover {
+        cursor: pointer;
+    }
+}
